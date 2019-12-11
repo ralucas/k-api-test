@@ -1,11 +1,11 @@
-FROM open-jdk-8:alpine as buildmachine
+FROM gradle:jdk11 as buildmachine
 
 WORKDIR /app
 COPY . /app
 
 RUN gradle build
 
-FROM open-jdk-8:alpine
+FROM openjdk:11
 
 WORKDIR /app
 COPY --from=buildmachine /app/build/libs/*.jar /app
