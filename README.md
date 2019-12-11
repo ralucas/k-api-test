@@ -9,17 +9,16 @@ Create a web application that exposes REST operations for employees. The API sho
 - Delete employees
 - Get all employees
 
-An employee is made up of the following data:
+### An employee is made up of the following data:
 
 __Employee spec__:
-> ID - Unique identifier for an employee
-> FirstName - Employees first name
-> MiddleInitial - Employees middle initial
-> LastName - Employeed last name
-> DateOfBirth - Employee birthday and year
-> DateOfEmployment - Employee start date
-> Status - ACTIVE or INACTIVE
-
+> `ID` - Unique identifier for an employee  
+> `FirstName` - Employees first name  
+> `MiddleInitial` - Employees middle initial  
+> `LastName` - Employeed last name  
+> `DateOfBirth` - Employee birthday and year  
+> `DateOfEmployment` - Employee start date  
+> `Status` - ACTIVE or INACTIVE  
 
 ### Startup
 
