@@ -35,7 +35,7 @@ usage: ./run.sh options
 
 - The server can be found at <http://localhost:8080>
 - Or you can run it straight via java:
-  - `gradle build && java -jar build/api-1.0.0.jar [options]`
+  - `gradle build && java -jar build/libs/api-1.0.0.jar [options]`
     - Where options are:
       - `--generate-data=<number-employees-to-generate>`
       - `--data-file=<path-to-csv>`
