@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bash_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 data_file=$1
 usage() {
     cat << EOF
@@ -7,7 +9,7 @@ usage() {
     Runs employees api
     OPTIONS:
     -h      Show this message
-    -f      Data file to ingest (ex run.sh -f <path-to-file>)
+    -f      Data file to ingest, use absolute path (ex run.sh -f <absolute-path-to-file>)
     -g      Auto generate given # of employees (ex. run.sh -g 100)
 EOF
 }
@@ -33,8 +35,10 @@ do
 done
 
 server_opts=""
+mount_opts=""
 if [ ! -z $datafile ]; then
-  server_opts+="--data-file=${datafile}"
+  server_opts+="--data-file=data.csv"
+  mount_opts="-v ${datafile}:/app/data.csv"
 fi
 
 if [ ! -z $generatedata ]; then
@@ -42,4 +46,5 @@ if [ ! -z $generatedata ]; then
 fi
 
 docker build -t employees-api:latest .
-docker run -p "8080:8080" -e SERVER_OPTIONS=${server_opts} employees-api
+docker run -rm -p "8080:8080" -e SERVER_OPTIONS=${server_opts} ${mount_opts} --name employees-api employees-api
+

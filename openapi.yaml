@@ -5,10 +5,14 @@ info:
   version: 1.0.0
 servers:
 - url: http://localhost:8080/api
+security:
+  - bearerAuth
 paths:
   /employees:
     get:
       summary: List Employees 
+      security:
+        - bearerAuth: []
       parameters:
       - name: pageNum
         in: query
@@ -31,6 +35,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Employee'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         default:
           description: Unexpected error
           content:
@@ -39,6 +45,8 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       summary: Create new employee
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -52,6 +60,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Employee'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         default:
           description: Unexpected error
           content:
@@ -61,6 +71,8 @@ paths:
   /employees/{id}:
     get:
       summary: Get employee info by employee id
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
@@ -76,6 +88,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Employee'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         default:
           description: Unexpected error
           content:
@@ -84,6 +98,8 @@ paths:
                 $ref: '#/components/schemas/Error'
     put:
       summary: Update employee
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
@@ -105,6 +121,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Employee'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         default:
           description: Unexpected error
           content:
@@ -113,6 +131,8 @@ paths:
                 $ref: '#/components/schemas/Error'
     delete:
       summary: Inactivate employee
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
@@ -124,6 +144,8 @@ paths:
       responses:
         204:
           description: Successfully inactivated
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         default:
           description: Unexpected error
           content:
@@ -132,6 +154,14 @@ paths:
                 $ref: '#/components/schemas/Error'
       
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: uuid
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
   schemas:
     Employee:
       type: object

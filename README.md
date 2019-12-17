@@ -17,7 +17,7 @@ usage: ./run.sh options
     Runs employees api
     OPTIONS:
     -h      Show this message
-    -f      Data file to ingest (ex run.sh -f <path-to-file>)
+    -f      Data file to ingest use absolute path (ex run.sh -f <absolute-path-to-file>)
     -g      Auto generate given # of employees (ex. run.sh -g 100)
 ```
 
@@ -37,19 +37,22 @@ usage: ./run.sh options
 - Or you can run it straight via java:
   - `gradle build && java -jar build/api-1.0.0.jar [options]`
     - Where options are:
-      - `--generate-data=<number-employees-to-generate> `
+      - `--generate-data=<number-employees-to-generate>`
       - `--data-file=<path-to-csv>`
         - See csv spec above
+
+## API Docs
+The api docs can be viewed in the [openapi.yaml](openapi.yaml).  All endpoints require an Authorization header of bearer token, which can be retrieved as outlined below.
+
+The employees api is available at `http://localhost:8080/api/employees`
 
 ## How to request a token
 
 ```sh
-curl -X POST \ 
-  http://test-client:test-secret@localhost:8080/oauth/token \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'scope=read&grant_type=client_credentials&client_id=test-client'
+curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -d 'scope=read&grant_type=client_credentials&client_id=test-client' http://test-client:test-secret@localhost:8080/oauth/token
 ```
 
 ## Running tests
 
 To run tests: `gradle test` or via docker `docker build .`
+
