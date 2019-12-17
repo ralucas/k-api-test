@@ -8,12 +8,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.time.LocalDate;
 
 import com.employees.api.service.EmployeeService;
 import org.springframework.boot.SpringApplication;
@@ -22,6 +24,9 @@ import org.springframework.data.map.repository.config.EnableMapRepositories;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootApplication
 @EnableMapRepositories
@@ -34,7 +39,9 @@ public class ApiApplication implements ApplicationRunner {
         "DateOfBirth", 
         "DateOfEmployment", 
         "Status"
-	};
+    };
+    
+    private static final Logger logger = LoggerFactory.getLogger(ApiApplication.class);
 
 	@Autowired
 	EmployeeService es;
@@ -45,14 +52,68 @@ public class ApiApplication implements ApplicationRunner {
 
 	@Override
     public void run(ApplicationArguments args) throws Exception {
-		boolean containsOption = args.containsOption("data-file");
+		boolean hasDataFile = args.containsOption("data-file");
+		boolean generateData = args.containsOption("generate-data");
 		
-		if (containsOption) {
+		if (hasDataFile) {
 			List<String> values = args.getOptionValues("data-file");
 			if (values != null) {
 				handleInputDataFile(values.get(0));
+			} else {
+                logger.error("data-file option requires a path");
+                System.exit(-1);
+            }
+		} else if (generateData) {
+			List<String> values = args.getOptionValues("generate-data");
+			if (values != null) {
+				generateData(values.get(0));
+			} else {
+                logger.error("generate-data option requires an amount");
+                System.exit(-1);
 			}
-		}
+        }
+    }
+
+    private void generateData(String numOfRecords) {
+        try {
+            int records = Integer.parseInt(numOfRecords);
+            Path fnPath = Paths.get("names/firstnames.txt");
+            int fnLen = (int) Files.lines(fnPath).count();
+            Path lnPath = Paths.get("names/lastnames.txt");
+            int lnLen = (int) Files.lines(lnPath).count();
+            for (int i = 0; i < records; i++) {
+                UUID id = UUID.randomUUID();
+                String firstName = Files.lines(fnPath)
+                    .skip(new Random().nextInt(fnLen)).findFirst().get();
+                int mi = new Random().nextInt(26) + 65;
+                String middleInitial = String.valueOf((char) mi);
+                String lastName = Files.lines(lnPath)
+                    .skip(new Random().nextInt(lnLen)).findFirst().get();
+                LocalDate birthDate = LocalDate.of(
+                    new Random().nextInt(2000) + 1950,
+                    new Random().nextInt(11) + 1,
+                    new Random().nextInt(27) + 1
+                );
+                LocalDate employmentDate = LocalDate.of(
+                    new Random().nextInt(2019) + 2010,
+                    new Random().nextInt(11) + 1,
+                    new Random().nextInt(27) + 1
+                );
+                String[] s = new String[] {"ACTIVE", "INACTIVE"};
+                Status status = Status.fromString(s[new Random().nextInt(1)]);
+                Employee e = new Employee(id, firstName, middleInitial, lastName, birthDate, employmentDate, status);
+                es.save(e);
+            }
+        } catch (NumberFormatException nfe) {
+            logger.error("Error parsing generate arg {}", nfe, nfe);
+            System.exit(-1);
+        } catch (FileNotFoundException fnfe) {
+            logger.error("Error file issues {}", fnfe, fnfe);
+            System.exit(-1);
+        } catch (Exception ex) {
+            logger.error("Error generation exception {}", ex, ex);
+            System.exit(-1);
+        }
     }
 
     private void handleInputDataFile(String dataFilePath) {
@@ -75,16 +136,16 @@ public class ApiApplication implements ApplicationRunner {
 				}
 				br.close();
 			} else {
-				System.out.println("Data file is malformed");
+				logger.error("Data file is malformed");
 				System.exit(-1);
 			}
 		} catch(FileNotFoundException fnfe) {
 			fnfe.printStackTrace();
-			System.out.println("Bad path or missing data file");
+			logger.error("Bad path or missing data file");
 			System.exit(-1);
 		} catch(IOException ie) {
 			ie.printStackTrace();
-			System.out.println("Bad data file");
+			logger.error("Bad data file");
 			System.exit(-1);
 		}
     }
@@ -102,21 +163,19 @@ public class ApiApplication implements ApplicationRunner {
     }
 
     private Employee lineToEmployee(String[] line) throws Exception {
-        String id = null;
+        UUID id = null;
         String firstName = null;
         String middleInitial = null;
         String lastName = null;
-        Date birthDate = null;
-        Date employmentDate = null;
+        LocalDate birthDate = null;
+        LocalDate employmentDate = null;
         Status status = null;
-
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
         for (int i = 0; i < columns.length; i++) {
             String item = line[i];
             switch(i) {
                 case 0:
-                    id = item;
+                    id = UUID.fromString(item);
                     break;
                 case 1:
                     firstName = item;
@@ -128,27 +187,14 @@ public class ApiApplication implements ApplicationRunner {
                     lastName = item;
                     break;
                 case 4:
-                    try {
-                        birthDate = format.parse(item);
-                    } catch (ParseException pe) {
-                        pe.printStackTrace();
-                        System.out.println("Error parsing birthdate");
-                        throw new Exception("Bad birthdate");
-                    }
-                    break;
+                    birthDate = LocalDate.parse(item);
                 case 5:
-                    try {
-                        employmentDate = format.parse(item);
-                    } catch (ParseException pe) {
-                        pe.printStackTrace();
-                        System.out.println("Error parsing employmentdate");
-                        throw new Exception("Bad employment date");
-                    }
+                    employmentDate = LocalDate.parse(item);
                     break;
                 case 6:
                     status = Status.fromString(item);
                     if (status == null) {
-                        System.out.println("Bad status");
+                        logger.error("Bad status");
                         throw new Exception("Bad status");
                     }
                     break;

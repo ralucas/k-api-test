@@ -5,28 +5,46 @@ plugins {
 }
 
 group = 'com.employees'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.data:spring-data-keyvalue'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	testImplementation 'org.springframework.security:spring-security-test'
-	testCompile group: 'org.springframework.data', name: 'spring-data-keyvalue', version: '2.2.3.RELEASE'
+	implementation 'ch.qos.logback:logback-access:1.2.3'
+	implementation 'net.rakugakibox.spring.boot:logback-access-spring-boot-starter:2.7.1'
+	implementation 'ch.qos.logback:logback-classic:1.2.3'
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'
-
+	compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.0.RELEASE'
+	compile group: 'org.springframework.security', name: 'spring-security-jwt', version: '1.1.0.RELEASE'
+	compile group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.2.2.RELEASE'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testCompile group: 'org.springframework.data', name: 'spring-data-keyvalue', version: '2.2.3.RELEASE'
+	testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.0'
+	testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.4.0'
+	testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.0'
+	testCompile group: 'de.adesso', name: 'junit-insights', version: '1.0.0'
 }
 
-// test {
-// 	useJUnitPlatform()
-// }
+test {
+	systemProperty 'de.adesso.junitinsights.enabled', 'true'
+	systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+	useJUnitPlatform()
+	testLogging {
+        // set options for log level LIFECYCLE
+        events "failed", "passed", "skipped", "standard_out"
+        exceptionFormat "full"
+        showExceptions true
+        showCauses true
+        showStackTraces true
+	}
+}

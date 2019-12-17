@@ -1,0 +1,172 @@
+openapi: 3.0.1
+info:
+  title: Employees API
+  description: Simple Employee API
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/api
+paths:
+  /employees:
+    get:
+      summary: List Employees 
+      parameters:
+      - name: pageNum
+        in: query
+        description: Page number of employees to get
+        required: false
+        schema:
+          type: number
+      - name: perPage
+        in: query
+        description: Number of employees per page to get
+        required: false
+        schema:
+          type: number
+      responses:
+        200:
+          description: An array of all employees 
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create new employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+      responses:
+        201:
+          description: Created employee 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /employees/{id}:
+    get:
+      summary: Get employee info by employee id
+      parameters:
+      - name: id
+        in: path
+        description: ID of Employee 
+        required: true
+        schema:
+          type: string 
+          format: uuid
+      responses:
+        200:
+          description: An employee 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update employee
+      parameters:
+      - name: id
+        in: path
+        description: ID of Employee 
+        required: true
+        schema:
+          type: string 
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+      responses:
+        200:
+          description: An employee 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Inactivate employee
+      parameters:
+      - name: id
+        in: path
+        description: ID of Employee 
+        required: true
+        schema:
+          type: string 
+          format: uuid
+      responses:
+        204:
+          description: Successfully inactivated
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID of employee 
+        firstName:
+          type: string
+          description: First name of employee
+        middleInitial:
+          type: string
+          description: Middle initial of employee
+        lastName:
+          type: string
+          description: Last name of employee
+        birthDate:
+          type: string
+          format: datetime 
+        employmentDate:
+          type: string
+          format: datetime
+        status:
+          type: string 
+          enum:
+            - "ACTIVE"
+            - "INACTIVE"
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        fields:
+          type: string

@@ -1,6 +1,10 @@
 package com.employees.api.model;
 
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.lang.StringBuilder;
+import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.keyvalue.annotation.KeySpace;
@@ -8,34 +12,36 @@ import org.springframework.data.keyvalue.annotation.KeySpace;
 @KeySpace("employees")
 public class Employee {
     @Id
-    private String id;
+    private UUID id;
 
 	private String firstName;
 	private String middleInitial;
 	private String lastName;
-	private Date birthDate;
-	private Date employmentDate;
-	private Status status;
+	private LocalDate dateOfBirth;
+	private LocalDate dateOfEmployment;
+    private Status status;
+
+    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");  
 
 	public Employee(
-        String id, 
+        UUID id, 
         String firstName,
         String middleInitial,
         String lastName, 
-        Date birthDate,
-        Date employmentDate,
+        LocalDate dateOfBirth,
+        LocalDate dateOfEmployment,
         Status status
     ) {
 		this.id = id;
 		this.firstName = firstName;
         this.middleInitial = middleInitial;
         this.lastName = lastName; 
-        this.birthDate = birthDate;
-        this.employmentDate = employmentDate;
+        this.dateOfBirth = dateOfBirth;
+        this.dateOfEmployment = dateOfEmployment;
         this.status = status;
 	}
 
-	public String getId() {
+	public UUID getId() {
 		return id;
 	}
 
@@ -51,19 +57,19 @@ public class Employee {
 		return middleInitial;
     }
 
-	public String getBirthDate() {
-		return birthDate.toString();
+	public LocalDate getDateOfBirth() {
+        return dateOfBirth; 
     }
 
-	public String getEmploymentDate() {
-		return employmentDate.toString();
+	public LocalDate getDateOfEmployment() {
+        return dateOfEmployment; 
     }
 
     public Status getStatus() {
         return status;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -79,15 +85,35 @@ public class Employee {
         this.middleInitial = mi;
     }
     
-    public void setBirthDate(Date bd) {
-        this.birthDate = bd;
+    public void setDateOfBirth(LocalDate bd) {
+        this.dateOfBirth = bd;
     }
 
-    public void setEmploymentDate(Date ed) {
-        this.employmentDate = ed;
+    public void setDateOfEmployment(LocalDate ed) {
+        this.dateOfEmployment = ed;
     }
 
     public void setStatus(Status s) {
         this.status = s;
+    }
+
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("Employee: [");
+        s.append("id=" + this.getId().toString());
+        s.append(" ");
+        s.append("firstName=" + this.getFirstName());
+        s.append(" ");
+        s.append("middleInitial=" + this.getMiddleInitial());
+        s.append(" ");
+        s.append("lastName=" + this.getLastName());
+        s.append(" ");
+        s.append("dateOfBirth=" + this.getDateOfBirth());
+        s.append(" ");
+        s.append("dateOfEmployment=" + this.getDateOfEmployment());
+        s.append(" ");
+        s.append("status=" + this.getStatus().toString());
+        s.append("]");
+        return s.toString();
     }
 }

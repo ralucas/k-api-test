@@ -21,5 +21,9 @@ public enum Status {
         }
         return null;
     }
+
+    public boolean isActive() {
+        return this.value.equals("ACTIVE");
+    }
 }
 
