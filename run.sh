@@ -2,7 +2,6 @@
 
 bash_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-data_file=$1
 usage() {
     cat << EOF
     usage: $0 options
@@ -14,7 +13,7 @@ usage() {
 EOF
 }
 
-while getopts “hyf:e:r:v:” OPTION
+while getopts “hf:g:” OPTION
 do
      case $OPTION in
          h)
@@ -46,5 +45,5 @@ if [ ! -z $generatedata ]; then
 fi
 
 docker build -t employees-api:latest .
-docker run -rm -p "8080:8080" -e SERVER_OPTIONS=${server_opts} ${mount_opts} --name employees-api employees-api
+docker run --rm -p "8080:8080" -e SERVER_OPTIONS=${server_opts} ${mount_opts} --name employees-api employees-api
 
